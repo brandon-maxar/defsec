@@ -16,6 +16,7 @@ type Range interface {
 	GetEndLine() int
 	String() string
 	IsMultiLine() bool
+	LineCount() int
 }
 
 func NewRange(filename string, startLine int, endLine int, sourcePrefix string, srcFS fs.FS) baseRange {
@@ -30,12 +31,12 @@ func NewRange(filename string, startLine int, endLine int, sourcePrefix string, 
 	return r
 }
 
-func NewRangeWithFSKey(filename string, startLine int, endLine int, sourcePrefix string, fsKey string) baseRange {
+func NewRangeWithFSKey(filename string, startLine int, endLine int, sourcePrefix string, fsKey string, fs fs.FS) baseRange {
 	r := baseRange{
 		filename:     filename,
 		startLine:    startLine,
 		endLine:      endLine,
-		fs:           nil,
+		fs:           fs,
 		fsKey:        fsKey,
 		sourcePrefix: sourcePrefix,
 	}
@@ -53,6 +54,13 @@ type baseRange struct {
 
 func (r baseRange) GetFSKey() string {
 	return r.fsKey
+}
+
+func (r baseRange) LineCount() int {
+	if r.endLine == 0 {
+		return 0
+	}
+	return (r.endLine - r.startLine) + 1
 }
 
 func (r baseRange) GetFilename() string {
